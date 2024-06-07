@@ -1,0 +1,15 @@
+## Interface: 30300 
+## Title: MasterMount
+## Notes: Displays a list of mounts and pets which the character is missing and allows auto summoning of pet
+## Author: Sitoz
+## X-Author-Server: MasterWow
+## X-Author-Faction: Horde
+## eMail: pentsec.2 AT protonmail DOT com
+## X-email: pentsec.2 AT protonmail DOT com
+## Version: 1.0
+## Dependencies:
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## SavedVariablesPerCharacter: CollectMeSavedVars
+
+MasterMount.xml
