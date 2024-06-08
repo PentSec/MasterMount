@@ -1,3 +1,21 @@
 CollectMeCompanionInfo = {
     [82656]= string.format("You can obtains this companion by recruiting friends or being recruited"),
+    [82657]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 15%s", DonorToken), -- Dark Elemental Storm Gryphon Baby 15dt
+    [82658]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 15%s", DonorToken), -- Purple Elemental Storm Gryphon Baby 15
+    [82660]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 15%s", DonorToken), -- Fire Elemental Storm Gryphon Baby 15
+    [82662]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Tortollan Young 5
+    [82666]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Sly 5
+    [82659]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 15%s", DonorToken), -- Golden Elemental Storm Gryphon Baby 15
+    [82661]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Taivan to the Rescue 5
+    [82663]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 15%s", DonorToken), -- Flames of the Firelord 15
+    [82664]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Emerald Swoglet 5
+    [82665]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Sable 5
+    [82667]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Renny 5
+    [82668]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Goldenpaw Kit 5
+    [82670]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Orange Vulpin 5
+    [82672]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Red Vulpin 5
+    [82674]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Purity 5
+    [82669]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Verdant Kit 5
+    [82571]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Rocky 5
+    [82673]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 5%s", DonorToken), -- Dodger 5
 }
