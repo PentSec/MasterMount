@@ -1,3 +1,16 @@
+local goldIcon = "|TInterface\\MoneyFrame\\UI-GoldIcon:20|t"
+local ProffesionIco = "|TInterface\\Icons\\INV_Misc_Book_09:20|t"
+local BattleIco = "|TInterface\\Icons\\Ability_DualWield:20|t"
+local master1 = "|TInterface\\Icons\\inv_masterwow1:20|t"
+local master2 = "|TInterface\\Icons\\inv_masterwow2:20|t"
+local DonorToken = "|TInterface\\Icons\\donor_token01:20|t"
+local MountToken = "|TInterface\\Icons\\spell_tailor_mountspeedup01:20|t"
+--local dragoncoin = "|TInterface\\Icons\\inv_10_fishing_dragonislescoins_gold:20|t"
+local transmog = "|TInterface\\Icons\\achievement_transmog_collections:20|t"
+local lesscoin = "|TInterface\\Icons\\timelesscoin:20|t"
+local lesscoiny = "|TInterface\\Icons\\timelesscoin_yellow:20|t"
+local lesscoinb = "|TInterface\\Icons\\timelesscoin_bloody:20|t"
+
 CollectMeCompanionInfo = {
     [82656]= string.format("You can obtains this companion by recruiting friends or being recruited"),
     [82657]= string.format("You can buy this mount from [Donor Vendor] for [Donor Token]: 15%s", DonorToken), -- Dark Elemental Storm Gryphon Baby 15dt
