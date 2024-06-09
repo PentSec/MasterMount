@@ -561,7 +561,7 @@
 				CollectMe_OnLoad();
 			</OnLoad>
 			<OnEvent>
-
+				CollectMe_OnEvent(event);
 			</OnEvent>
 		</Scripts>
 	</Frame>
@@ -581,7 +581,6 @@
 				<Scripts>
 					<OnLoad>
 						 getglobal(this:GetName().."Text"):SetText("Enable 3D Model Preview")
-						 this:SetChecked(true)
 					</OnLoad>
 					<OnClick>
 						 CollectMePanel_OnClick("preview")

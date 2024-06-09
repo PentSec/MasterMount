@@ -13,7 +13,7 @@ local nextCompanion = nil;
 local is_entered = false;
 local currentTab = COLLECTME_CRITTER;
 
-CollectMeSavedVars = { IgnoredCompanionsTable = { }, IgnoredMountsTable = { }, RndCom = { }, Options = { }, };
+CollectMeSavedVars = { IgnoredCompanionsTable = { }, IgnoredMountsTable = { }, RndCom = { }, Options = { preview = 1 }, };
 
 function CollectMe_OnLoad()
     this:RegisterForDrag("LeftButton");
@@ -32,21 +32,22 @@ end
 
 function CollectMe_OnEvent(event)
     if(event == "ADDON_LOADED") then
-        if(arg1 == "CollectMe") then
+        if(arg1 == "MasterMount") then
             hooksecurefunc("MoveForwardStart",CollectMe_SummonOnMoving);
+            hooksecurefunc("MoveBackwardStart", CollectMe_SummonOnMoving)
+            hooksecurefunc("TurnLeftStart", CollectMe_SummonOnMoving)
+            hooksecurefunc("TurnRightStart", CollectMe_SummonOnMoving)
             hooksecurefunc("ToggleAutoRun",CollectMe_SummonOnMoving);
             if(CollectMeSavedVars.Options["button_hide"] ~= nil) then
                 CollectMeButtonFrame:Hide();
             end
             if(is_entered == true) then
-                CollectMe_Initialize(CollectMeFrame);
                 CollectMe_CheckSavedVars();
                 CollectMe_NextCompanion();
             end
         end 
     end
     if(event == "PLAYER_ENTERING_WORLD") then
-        CollectMe_Initialize(CollectMeFrame);
         CollectMe_CheckSavedVars();
         CollectMe_NextCompanion();
         is_entered = true;
@@ -54,29 +55,28 @@ function CollectMe_OnEvent(event)
 end
 
 function CollectMe_SummonOnMoving()
-    if(CollectMeSavedVars.Options == nil) then
-        CollectMeSavedVars.Options = { };
+    if CollectMeSavedVars.Options == nil then
+        CollectMeSavedVars.Options = { }
     end
-    if(IsMounted() == nil and IsStealthed() == nil) then
-        if(CollectMeSavedVars.Options["moving"] ~= nil) then
-            if(not(UnitIsPVP("player") == 1 and CollectMeSavedVars.Options["disableonpvp"] == 1)) then
-                local companionActive = CollectMe_checkActive();
-                if(companionActive ~= true) then
-                    if(nextCompanion == nil) then
-                        CollectMe_NextCompanion();
-                        if(nextCompanion ~= nil) then
-                            CallCompanion("CRITTER", nextCompanion);
+    if CollectMeSavedVars.Options["disableonpvp"] == 1 then     
+        if not IsMounted() and not IsStealthed() and not InCombatLockdown() then
+            if CollectMeSavedVars.Options["moving"] ~= nil then
+                local companionActive = CollectMe_checkActive()
+                if not companionActive then
+                    if nextCompanion == nil then
+                        CollectMe_NextCompanion()
+                        if nextCompanion ~= nil then
+                            CallCompanion("CRITTER", nextCompanion)
                         end
                     else
-                        CallCompanion("CRITTER", nextCompanion);
+                        CallCompanion("CRITTER", nextCompanion)
                     end
-                    CollectMe_NextCompanion();
+                    CollectMe_NextCompanion()
                 end
             end
+        elseif CollectMe_checkActive() and InCombatLockdown() then
+            CollectMe_Dismisser()
         end
-    end
-    if(UnitIsPVP("player") == 1 and CollectMeSavedVars.Options["disableonpvp"] == 1) then
-        CollectMe_Dismisser();
     end
 end
 
@@ -246,6 +246,11 @@ function CollectMe_CompanionUpdate()
     return totalDBCompanions, totalKnownCompanions;
 end
 
+
+local function OnMountClick(mountName)
+    RunMacroText("/cast " .. mountName)
+end
+
 function CollectMe_MountUpdate()
     local totalKnownMounts = 0
     local knownMountsTable = {}
@@ -257,12 +262,11 @@ function CollectMe_MountUpdate()
 
     local searchText = MountFilterL:GetText():lower()
 
-
     for i = 1, GetNumCompanions("MOUNT") do
         local creatureID, creatureName, spellID, icon, active = GetCompanionInfo("MOUNT", i)
         local name, _, icon, _, _, _, _, _, _ = GetSpellInfo(spellID)
         totalKnownMounts = totalKnownMounts + 1
-        knownMountsTable[spellID] = 1
+        knownMountsTable[spellID] = i
         if CollectMeSavedVars.IgnoredMountsTable[name] then
             CollectMeSavedVars.IgnoredMountsTable[name] = nil
         end
@@ -277,6 +281,7 @@ function CollectMe_MountUpdate()
                 t.itemID = v
                 t.name = name
                 t.icon = icon
+                t.spellID = k
                 if CollectMeSavedVars.IgnoredMountsTable[name] then
                     totalIgnoredMounts = totalIgnoredMounts + 1
                     t.isIgnored = true
@@ -287,7 +292,6 @@ function CollectMe_MountUpdate()
             end
         end
     end
-
 
     local function processVendorMounts(vendorMounts, headerName)
         local vendorMountsTable = {}
@@ -300,6 +304,7 @@ function CollectMe_MountUpdate()
                 t.itemID = v
                 t.name = name
                 t.icon = icon
+                t.spellID = k
                 table.insert(vendorMountsTable, t)
             end
         end
@@ -322,69 +327,79 @@ function CollectMe_MountUpdate()
     totalDBMounts = totalDBMounts + processVendorMounts(LegendaryVendorMounts, "Legendary Vendor Mounts")
     totalDBMounts = totalDBMounts + processVendorMounts(DonorVendorMounts, "Donor Vendor Mounts")
     totalDBMounts = totalDBMounts + processVendorMounts(AnotherMounts, "Other Special Mounts")
+
     return totalDBMounts, totalKnownMounts
-    
 end
 
 function CollectMeScrollFrameUpdate()
-    local displayTable = { };
-    for k,v in ipairs(MissingItemsTable) do
-        table.insert(displayTable, k, v);
+    local displayTable = {}
+    for k, v in ipairs(MissingItemsTable) do
+        table.insert(displayTable, k, v)
     end
 
-    local index = 1;
+    local index = 1
     while index <= #displayTable do
-        if ( displayTable[index].isHeader and (not displayTable[index].isExpanded) ) then
-            local i = index + 1;
-            while ( i <= #displayTable and (not (displayTable[i].isHeader)) ) do
-                table.remove(displayTable, i);
+        if displayTable[index].isHeader and (not displayTable[index].isExpanded) then
+            local i = index + 1
+            while i <= #displayTable and (not displayTable[i].isHeader) do
+                table.remove(displayTable, i)
             end
         end
-        index = index + 1;
+        index = index + 1
     end
 
-    local totalItemsToShow = #displayTable;
-    local index, button, buttonText, buttonIcon, buttonModel, header, headerText, buttonItemID;
+    local totalItemsToShow = #displayTable
+    local button, buttonText, buttonIcon, header, headerText, buttonItemID
 
-    for line=1, COLLECTME_NUM_ITEMS_TO_DISPLAY do
-        index = line + FauxScrollFrame_GetOffset(CollectMeFrameScrollFrame);
-        button = getglobal("CollectMeFrameScrollFrameButton"..line);
-        buttonText = getglobal("CollectMeFrameScrollFrameButton"..line.."Text");
-        buttonIcon = getglobal("CollectMeFrameScrollFrameButton"..line.."Icon");
-        buttonItemID = getglobal("CollectMeFrameScrollFrameButton"..line.."ItemID");
-        header = getglobal("CollectMeFrameScrollFrameHeader"..line);
-        headerText = getglobal("CollectMeFrameScrollFrameHeader"..line.."Text");
+    for line = 1, COLLECTME_NUM_ITEMS_TO_DISPLAY do
+        index = line + FauxScrollFrame_GetOffset(CollectMeFrameScrollFrame)
+        button = _G["CollectMeFrameScrollFrameButton" .. line]
+        buttonText = _G["CollectMeFrameScrollFrameButton" .. line .. "Text"]
+        buttonIcon = _G["CollectMeFrameScrollFrameButton" .. line .. "Icon"]
+        buttonItemID = _G["CollectMeFrameScrollFrameButton" .. line .. "ItemID"]
+        header = _G["CollectMeFrameScrollFrameHeader" .. line]
+        headerText = _G["CollectMeFrameScrollFrameHeader" .. line .. "Text"]
 
         if index <= totalItemsToShow then
-             if ( displayTable[index].isHeader ) then
-                button:Hide();
-                headerText:SetText(displayTable[index].name);
-                header:Show();
+            if displayTable[index].isHeader then
+                button:Hide()
+                headerText:SetText(displayTable[index].name)
+                header:Show()
 
-                if ( displayTable[index].isExpanded ) then
-                    header:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up");
+                if displayTable[index].isExpanded then
+                    header:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up")
                 else
-                    header:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up");
+                    header:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up")
                 end
             else
-                header:Hide();
-                buttonText:SetText(displayTable[index].name);
-                buttonItemID:SetText(displayTable[index].itemID);
-                buttonIcon:SetNormalTexture(displayTable[index].icon);
-                button:Show();
-                if ( displayTable[index].name == ClickedScrollItem ) then
-                    button:LockHighlight();
+                header:Hide()
+                buttonText:SetText(displayTable[index].name)
+                buttonItemID:SetText(displayTable[index].itemID)
+                buttonIcon:SetNormalTexture(displayTable[index].icon)
+                button:Show()
+
+                -- Asignar montura al botón aquí
+                local mount = displayTable[index]
+                button.icon = mount.icon
+                button.spellID = mount.spellID
+                button:SetScript("OnClick", function()
+                    OnMountClick(mount.name)
+                end)
+
+                if mount.name == ClickedScrollItem then
+                    button:LockHighlight()
                 else
-                    button:UnlockHighlight();
+                    button:UnlockHighlight()
                 end
             end
         else
-            button:Hide();
-            header:Hide();
+            button:Hide()
+            header:Hide()
         end
     end
-    FauxScrollFrame_Update(CollectMeFrameScrollFrame, totalItemsToShow, COLLECTME_NUM_ITEMS_TO_DISPLAY, COLLECTME_LIST_ITEM_HEIGHT);
+    FauxScrollFrame_Update(CollectMeFrameScrollFrame, totalItemsToShow, COLLECTME_NUM_ITEMS_TO_DISPLAY, COLLECTME_LIST_ITEM_HEIGHT)
 end
+
 
 function CollectMe_ScrollItemMouseOver(self)
     local itemName = getglobal(self:GetName().."Text"):GetText();
