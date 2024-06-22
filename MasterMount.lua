@@ -42,13 +42,11 @@ function CollectMe_OnEvent(event)
                 CollectMeButtonFrame:Hide();
             end
             if(is_entered == true) then
-                CollectMe_CheckSavedVars();
                 CollectMe_NextCompanion();
             end
         end 
     end
     if(event == "PLAYER_ENTERING_WORLD") then
-        CollectMe_CheckSavedVars();
         CollectMe_NextCompanion();
         is_entered = true;
     end
